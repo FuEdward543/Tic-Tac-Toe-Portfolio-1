@@ -3,7 +3,7 @@
 #include <catch2/benchmark/catch_constructor.hpp>
 #include <catch2/generators/catch_generators_range.hpp>
 
-#include "../src/tictactoe.hpp"
+#include "../src/tictactoe.cpp"
 
 TEST_CASE( "it works" ) {
     REQUIRE( true );
