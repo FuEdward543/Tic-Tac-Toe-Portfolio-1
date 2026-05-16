@@ -1,5 +1,7 @@
 #include <iostream>
 #include <limits>
+#include <cstdlib>
+#include <ctime>
 #include "src/tictactoe.hpp"
 using namespace std;
 
@@ -15,7 +17,50 @@ int getComputerMove(const TicTacToe& board) {
     return -1;
 }
 
+int getIntInput() {
+    int input;
+    while (true) {
+        cin >> input;
+        if (!cin.good()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a number." << endl;
+            continue;
+        }
+        if (cin.peek() != '\n') {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a single number." << endl;
+            continue;
+        }
+        break;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    return input;
+}
+
+char getCharInput() {
+    char input;
+    while (true) {
+        cin >> input;
+        if (!cin.good()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a character." << endl;
+            continue;
+        }
+        if (cin.peek() != '\n') {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a single character." << endl;
+            continue;
+        }
+        break;
+    }
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    return input;
+}
+
 int main() {
+    srand(time(nullptr));
     bool replay = true;
 
     while (replay) {
@@ -24,23 +69,39 @@ int main() {
         cout << "2. Play vs Computer" << endl;
         cout << "Choose an option: ";
 
-        int mode;
-        cin >> mode;
+        int mode = getIntInput();
 
         bool vsComputer = false;
         bool computerFirst = false;
 
         if (mode == 2) {
             vsComputer = true;
-            cout << "Should the computer go first? (Y/N): ";
-            char choice;
-            cin >> choice;
-            if (choice == 'Y' || choice == 'y') {
-                computerFirst = true;
+            while (true) {
+                cout << "Should the computer go first? (Y/N)";
+                char choice = getCharInput();
+                if (choice == 'Y' || choice == 'y') {
+                    computerFirst = true;
+                    break;
+                } else if (choice == 'N' || choice == 'n') {
+                    break;
+                } else {
+                    cout << "Invalid input. Please enter Y or N" << endl;
+                }
             }
+        } else if (mode != 1) {
+            cout << "Invalid input: Please enter 1 or 2" << endl;
+            continue;
         }
 
         TicTacToe board;
+
+        cout << "Enable trap cell? (Y/N): ";
+        char trapChoice = getCharInput();
+        if (trapChoice == 'Y' || trapChoice == 'y') {
+            board.enableTrap();
+            cout << "A trap cell has been hidden on the board..." << endl;
+        }
+
         char currentPlayer = 'X';
         bool gameOver = false;
 
@@ -60,47 +121,40 @@ int main() {
                 cout << "Computer chose position " << move << endl;
             } else {
                 cout << "Player " << currentPlayer << ", enter a number from 1-9: ";
-                cin >> position;
-
-                if (!cin.good()) {
-                    cin.clear();
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    cout << "Invalid input. Try again." << endl;
-                    continue;
-                }
+                position = getIntInput();
                 if (!board.makeMove(position, currentPlayer)) {
                     cout << "Invalid move. Try again." << endl;
                     continue;
                 }
             }
+
             if (board.checkWin(currentPlayer)) {
                 board.draw();
                 cout << "Player " << currentPlayer << " wins!" << endl;
                 gameOver = true;
-            }
-            else if (board.checkDraw()) {
+            } else if (board.checkDraw()) {
                 board.draw();
                 cout << "It's a draw!" << endl;
                 gameOver = true;
-            }
-            else {
-                if (currentPlayer == 'X') {
-                    currentPlayer = 'O';
-                } else {
-                    currentPlayer = 'X';
-                }
+            } else {
+                currentPlayer = (currentPlayer == 'X') ? 'O' : 'X';
             }
         }
-        cout << "Play again? Y or N: ";
-        char choice;
-        cin >> choice;
 
-        if (choice == 'y' || choice == 'Y') {
-            replay = true;
-            cout << "Starting a new game" << endl;
-        } else {
-            replay = false;
-            cout << "Ending game" << endl;
+        while (true) {
+            cout << "Would you like to play again? (Y/N)";
+            char choice = getCharInput();
+            if (choice == 'y' || choice == 'Y') {
+                replay = true;
+                cout << "Starting a new game" << endl;
+                break;
+            } else if (choice == 'n' || choice == 'N') {
+                replay = false;
+                cout << "Ending game" << endl;
+                break;
+            } else {
+                cout << "Invalid input. Please enter Y or N" << endl;
+            }
         }
     }
 }

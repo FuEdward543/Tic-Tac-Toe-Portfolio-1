@@ -58,3 +58,50 @@ TEST_CASE("checkDraw works") {
     REQUIRE(board.checkWin('O') == false);
     REQUIRE(board.checkDraw() == true);
 }
+TEST_CASE("Trap cell activates and does not mark the board") {
+    TicTacToe board;
+    board.enableTrap();
+
+    int trapPos = -1;
+    for (int pos = 1; pos <= 9; ++pos) {
+        if (board.isTrap(pos)) {
+            trapPos = pos;
+            break;
+        }
+    }
+
+    REQUIRE(trapPos != -1);
+
+    int x = (trapPos - 1) / 3;
+    int y = (trapPos - 1) % 3;
+    char originalValue = board.get(x, y);
+
+    bool result = board.makeMove(trapPos, 'X');
+
+    REQUIRE(result == true);
+    REQUIRE(board.get(x, y) == originalValue);
+}
+
+TEST_CASE("Trap cell does not prevent a draw") {
+    TicTacToe board;
+    board.enableTrap();
+
+    int trapPos = -1;
+    for (int pos = 1; pos <= 9; ++pos) {
+        if (board.isTrap(pos)) {
+            trapPos = pos;
+            break;
+        }
+    }
+
+    REQUIRE(trapPos != -1);
+
+    for (int pos = 1; pos <= 9; ++pos) {
+        if (pos == trapPos) {
+            continue;
+        }
+        REQUIRE(board.makeMove(pos, 'X') == true);
+    }
+
+    REQUIRE(board.checkDraw() == true);
+}
